@@ -27,6 +27,9 @@ class Book(models.Model):
     catalogue = models.ForeignKey(Catalogue, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_available = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='images',max_length=255,
+        blank=True,
+        null=True,)
 
     class Meta:
         ordering = ['-timestamp']

@@ -14,10 +14,11 @@ class CatalogueSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id','title', 'author', 'catalogue', 'timestamp']
+        fields = ['id','title', 'author', 'catalogue', 'timestamp', 'image']
 
         exta_kwargs={
-            'author': {'required':False}
+            'author': {'required':False},
+            'image': {'required':False},
         }
 
 
@@ -30,7 +31,8 @@ class BookRequestSerializer(serializers.ModelSerializer):
         exta_kwargs={
             'date_approved': {'required':False},
             'date_returned': {'required':False},
-            'approval_status': {'required':False}
+            'approval_status': {'required':False},
+            
         }
 
 class UpdateApprovalSerializer(serializers.ModelSerializer):
