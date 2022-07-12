@@ -128,7 +128,7 @@ class CreateBookRequest(generics.CreateAPIView):
              })
         book_available = Book.objects.filter(id=request.data.get('book')).first()
         
-        if book_available.is_available:
+        if book_available and book_available.is_available:
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             book_available.is_available = False
