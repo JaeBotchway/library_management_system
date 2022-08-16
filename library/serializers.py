@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from library.models import Book, Catalogue, BookRequest
+from library.models import Book, Catalogue, BookRequest, Author
 
 
 class CatalogueSerializer(serializers.ModelSerializer):
@@ -14,11 +14,13 @@ class CatalogueSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id','title', 'author', 'catalogue', 'timestamp', 'image']
+        fields = ['id','title', 'author', 'catalogue', 'timestamp', 'image', 'quantity', 'price', 'discount']
 
         exta_kwargs={
             'author': {'required':False},
             'image': {'required':False},
+            'discount': {'required':False},
+            'price': {'required':False},
         }
 
 
@@ -59,3 +61,27 @@ class UpdateAvailabilitySerializer(serializers.ModelSerializer):
             book.save()   
             instance.save()
             return instance
+
+
+class BookAuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['author', 'title', 'catalogue', 'image']
+
+        exta_kwargs={
+            'title': {'required':False},
+            'catalogue': {'required':False},
+            'image': {'required':False},
+        }
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Author
+        fields = ['id','firstname', 'lastname', 'address', 'country']
+
+        exta_kwargs={
+            'address': {'required':False},
+            'country': {'required':False},
+        }

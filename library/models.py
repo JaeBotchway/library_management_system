@@ -21,15 +21,30 @@ class Catalogue(models.Model):
         ordering = ['name']
 
 
+class Author(models.Model):
+    firstname = models.CharField(max_length=255,blank=True, null=True)
+    lastname = models.CharField(max_length=255,blank=True, null=True)
+    address = models.CharField(max_length=255,blank=True, null=True)
+    country = models.CharField(max_length=255,blank=True, null=True)
+
+    def __str__(self):
+        return self.firstname
+
+    class Meta:
+        ordering = ['lastname']
+
 class Book(models.Model):
     title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255, blank=True, null=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     catalogue = models.ForeignKey(Catalogue, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_available = models.BooleanField(default=True)
     image = models.ImageField(upload_to='images',max_length=255,
         blank=True,
         null=True,)
+    quantity = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-timestamp']

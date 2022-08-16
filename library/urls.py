@@ -1,5 +1,8 @@
 from django.urls import path
-from library.views import CreateCatalogue, ListCatalogue, DeleteCatalogue, CreateBook, ListBook, DetailCatalogue, DetailBook, CreateBookRequest,UpdateApprovalStatus, UpdateBookAvailabilty
+from library.views import (CreateCatalogue, ListCatalogue, DeleteCatalogue, CreateBook, ListBook, 
+DetailCatalogue, DetailBook, CreateBookRequest,
+UpdateApprovalStatus, UpdateBookAvailabilty, GetBookByAuthor, CreateAuthor, ListAuthor,)
+
 
 
 urlpatterns = [
@@ -13,4 +16,7 @@ urlpatterns = [
   path('create_bookrequest/', CreateBookRequest.as_view(), name='CreateBookRequest'),
   path('update_approval/<int:id>/', UpdateApprovalStatus.as_view(), name='UpdateApprovalStatus'),
   path('update_date_returned/<int:id>/', UpdateBookAvailabilty.as_view(), name='UpdateBookAvailabilty'),
+  path('detail_author/<str:author>/', GetBookByAuthor.as_view(), name='GetBookByAuthor'),
+  path('create_author/', CreateAuthor.as_view(), name='CreateAuthor'),
+  path('list_author/', ListAuthor.as_view(), name='ListAuthor'),
 ]
