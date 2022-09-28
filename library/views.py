@@ -3,9 +3,10 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 from accounts.models import UserProfile
-from library.models import Catalogue, Book, BookRequest, Author
+from library.models import Catalogue, Book, BookRequest, Author, BookComment
 from library.serializers import (BookSerializer, CatalogueSerializer, BookRequestSerializer, 
-UpdateApprovalSerializer, UpdateAvailabilitySerializer, BookAuthorSerializer, AuthorSerializer)
+UpdateApprovalSerializer, UpdateAvailabilitySerializer, BookAuthorSerializer, AuthorSerializer,
+BookCommentSerializer)
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from library.permission import IsStaffUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -124,16 +125,23 @@ class CreateBookRequest(generics.CreateAPIView):
              })
         book_available = Book.objects.filter(id=request.data.get('book')).first()
         
-        if book_available and book_available.is_available:
+        if book_available and  book_available.quantity != 0:
+            # if book_available and book_available.is_available:
+            #     print(book_available, 11, book_available.quantity)
+            
             serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            book_available.is_available = False
+            
+            book_available.quantity -= 1
             book_available.save()
+            self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response({
-            'error': 'Book is not available'
-        })
+        if book_available and book_available.quantity == 0:
+            book_available.is_available = False
+            book_available.save()
+            return Response({
+                'error': 'Book is not available'
+            })
 
 class UpdateApprovalStatus(generics.UpdateAPIView):
 
@@ -152,6 +160,7 @@ class UpdateBookAvailabilty(generics.UpdateAPIView):
 
 
     def update(self, request, *args, **kwargs):
+        
         super().update(request, *args, **kwargs)
         return Response({"status": "success",
                         "detail": "Updated successfully"})
@@ -195,5 +204,43 @@ class ListAuthor(generics.ListAPIView):
         return Response({
             'status': 'success',
             'detail': 'Author Successfully listed',
+            'data': serializer.data
+        })
+
+
+
+class CreateComment(generics.CreateAPIView):
+    queryset = BookComment.objects
+    serializer_class = BookCommentSerializer
+    authentication_classes = [JWTAuthentication]
+    
+    def post(self, request, *args, **kwargs):
+        book_id = self.kwargs.get('book_id')
+        book = Book.objects.get(id = book_id)
+        user_id = UserProfile.objects.get(user=self.request.user)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.is_valid():
+            serializer.save(book_id=book.id, user_id=user_id.id)
+            return Response({
+                    'status': 'success',
+                    'detail': 'Comment successfully created',
+                    "data": serializer.data
+                })
+        else:
+             return Response('could not comment')
+
+
+
+class ListComment(generics.ListAPIView):
+    serializer_class = BookCommentSerializer
+    lookup_field = 'id'
+    def get(self, request):
+        serializer = BookCommentSerializer(self.queryset.all(), many=True, context={'request': request})
+
+        return Response({
+            'status': 'success',
+            'detail': 'Comment Successfully listed',
             'data': serializer.data
         })

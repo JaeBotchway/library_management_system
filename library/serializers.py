@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from library.models import Book, Catalogue, BookRequest, Author
+from library.models import Book, Catalogue, BookRequest, Author, BookComment
+from rest_framework.exceptions import APIException
 
+class ResourceNotFound(APIException):
+    status_code = 404
+    default_detail = {
+        "status": "failure",
+       "detail": "the given id did not return any data",
+    }
 
 class CatalogueSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,12 +62,18 @@ class UpdateAvailabilitySerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
             if 'date_returned' in validated_data:
-                instance.date_returned = validated_data['date_returned']
-            book =  Book.objects.get(id=instance.book_id) 
-            book.is_available = True
-            book.save()   
-            instance.save()
-            return instance
+                if instance.approval_status == 'approved':
+                    instance.date_returned = validated_data['date_returned']
+                try: 
+                    book =  Book.objects.get(id=instance.book_id) 
+                    book.is_available = True 
+                    book.quantity += 1
+                    book.save()   
+                    instance.save()
+                    return instance
+                except Book.DoesNotExist:
+                    raise ResourceNotFound
+                
 
 
 class BookAuthorSerializer(serializers.ModelSerializer):
@@ -81,7 +94,22 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ['id','firstname', 'lastname', 'address', 'country']
 
-        exta_kwargs={
+        extra_kwargs={
             'address': {'required':False},
             'country': {'required':False},
         }
+
+
+class BookCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookComment
+        fields = ['comment']
+
+        extra_kwargs={
+
+            'user': {'required':False},
+            'book': {'required':False},
+        }
+
+
+    

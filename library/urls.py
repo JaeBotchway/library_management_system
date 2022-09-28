@@ -1,7 +1,8 @@
 from django.urls import path
 from library.views import (CreateCatalogue, ListCatalogue, DeleteCatalogue, CreateBook, ListBook, 
 DetailCatalogue, DetailBook, CreateBookRequest,
-UpdateApprovalStatus, UpdateBookAvailabilty, GetBookByAuthor, CreateAuthor, ListAuthor,)
+UpdateApprovalStatus, UpdateBookAvailabilty, GetBookByAuthor, CreateAuthor, ListAuthor, CreateComment,
+ListComment)
 
 
 
@@ -19,4 +20,6 @@ urlpatterns = [
   path('detail_author/<str:author>/', GetBookByAuthor.as_view(), name='GetBookByAuthor'),
   path('create_author/', CreateAuthor.as_view(), name='CreateAuthor'),
   path('list_author/', ListAuthor.as_view(), name='ListAuthor'),
+  path('create_comment/<int:book_id>/',CreateComment().as_view(), name='CreateComment'),
+  path('list_comment/<int:book_id>/',ListComment().as_view(), name='ListComment'),
 ]

@@ -25,7 +25,7 @@ class UserProfile(models.Model):
     def __str__(self):
         return str(self.user.first_name)
 
-    def validateEmail(email):
+    def validateEmail(self, email):
             try:
                 validate_email(email)
                 return True

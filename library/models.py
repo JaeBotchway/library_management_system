@@ -69,3 +69,11 @@ class BookRequest(models.Model):
     @property
     def is_book_returned(self):
         return bool(self.date_returned)
+
+
+
+class BookComment(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=200, blank=True, null=True)
+    
